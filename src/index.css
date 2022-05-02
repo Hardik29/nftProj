@@ -116,3 +116,7 @@ color: #2563EB;
 font-weight: 700; 
 border-radius: 0.25rem; 
 }
+
+a {
+  color : white;
+}

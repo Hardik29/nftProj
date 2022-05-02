@@ -3,7 +3,7 @@ import { pinFileToIPFS } from "./pinatafile.js";
 require("dotenv").config();
 const alchemyKey = process.env.REACT_APP_ALCHEMY_KEY;
 const contractABI = require("../contract-abi.json");
-const contractAddress = "0xa77aa15755217096C9d189AEF259aD9381f5D568";
+const contractAddress = "0xaD7175f28e5C99435177e23669232304899fE8b4";
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 const web3 = createAlchemyWeb3(alchemyKey);
 
@@ -142,12 +142,12 @@ export const setUri = async (data, name, description) => {
   }
 };
 
-export const mintNFT = async (Amount) => {
+export const mintNFT = async (count, Amount) => {
   const transactionMintParameters = {
     to: contractAddress, // Required except during contract publications.
     from: window.ethereum.selectedAddress, // must match user's active address.
     data: window.contract.methods
-      .mint(window.ethereum.selectedAddress, 1, Amount)
+      .mint(count, Amount)
       .encodeABI(),
   };
 
@@ -160,6 +160,34 @@ export const mintNFT = async (Amount) => {
       success: true,
       status:
         "✅ NFT MINTED!!Check out your transaction on Polygon Mumbai: https://mumbai.polygonscan.com/tx/" +
+        txHash,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      status: "😥 Something went wrong: " + error.message,
+    };
+  }
+};
+
+export const transferNFT = async (address, id, Amount) => {
+  const transactionTransferParameters = {
+    to: contractAddress, // Required except during contract publications.
+    from: window.ethereum.selectedAddress, // must match user's active address.
+    data: window.contract.methods
+      .transfer(address, id, Amount)
+      .encodeABI(),
+  };
+
+  try {
+    const txHash = await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [transactionTransferParameters],
+    });
+    return {
+      success: true, 
+      status:
+        "✅ Transfer Happened!!Check out your transaction on Polygon Mumbai: https://mumbai.polygonscan.com/tx/" +
         txHash,
     };
   } catch (error) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { connectWallet, getCurrentWalletConnected, mintNFT, setUri } from "./util/interact.js";
+import { connectWallet, getCurrentWalletConnected, mintNFT, setUri,  transferNFT } from "./util/interact.js";
 
 const Minter = () => {
   const [walletAddress, setWallet] = useState("");
@@ -11,21 +11,14 @@ const Minter = () => {
   const [buttonvalue, setbuttonvalue] = useState("Mint NFT");
   const [count, setcount] = useState(0);
   const [nftData, setnftData] = useState([])
-  const listItems = nftData.map((x) => <div className="listItems">
-  <div className="flex: 1 1 auto">
-  <h1 className="font-size: 1.125rem; line-height: 1.75rem; ">TokenID:{x.tokenId}</h1>
-  <a href={x.tokenURI}>TokenURI@{x.tokenURI}</a>
-  </div>
-  <button className="listButton">Transfer Nft</button>
-  </div>
-  );
+  const [address, setaddress] = useState();
+  const [ amount, setamount] = useState();
+
  
   useEffect(async () => {
     const { address, status } = await getCurrentWalletConnected();
-
     setWallet(address);
     setStatus(status);
-
     addWalletListener();
   }, []);
 
@@ -66,13 +59,13 @@ const Minter = () => {
     setbuttonvalue("MInting NFT")
     setStatus(status);
     if (success) {
-      const { success, status } = await mintNFT(Amount);
+      const { success, status } = await mintNFT(count+1, Amount);
       setStatus(status)
+      setcount(count+1);
       if (success) {
         setname("");
         setDescription("");
         setfileData("");
-        setcount(count+1);
         const nftdatas = {
            tokenId:count,
            tokenURI:tokenUri
@@ -83,6 +76,14 @@ const Minter = () => {
       }
     }
   };
+
+
+  const onTransferPassed = async(id) =>{
+    const { success, status } = await transferNFT(address, id, amount);
+    if (success) {
+      setStatus(status);
+    }
+  }
 
 
  
@@ -107,7 +108,7 @@ const Minter = () => {
         <div>
         <input type="file" onChange={(e) => setfileData(e.target.files[0])} />
         </div>
-        <h2>🤔 Name: </h2>
+        <h2>😅 Name: </h2>
         <input
           type="text"
           placeholder="e.g. My first NFT!"
@@ -116,13 +117,13 @@ const Minter = () => {
         <h2>✍️ Description: </h2>
         <input
           type="text"
-          placeholder="e.g. Even cooler than cryptokitties ;)"
+          placeholder="Enter the Description ;)"
           onChange={(event) => setDescription(event.target.value)}
         />
         <h2>🔢 Amount</h2>
          <input
           type="text"
-          placeholder="e.g. Set Amoount Of Nft To Be Minted ;)"
+          placeholder="e.g. Set Amount Of Nft To Be Minted ;)"
           onChange={(event) => setAmount(event.target.value)}
         />
       </form>
@@ -133,10 +134,29 @@ const Minter = () => {
         {status}
       </p>
       <p  style={{ color: "blue" }}>
-        {"NO OF NFT MINTED::" + count}
+        {"NO OF NFT MINTED::" + count }     
       </p>
       <div>
-      {listItems}
+      {nftData.map((x) => <div className="listItems">
+  <div className="flex: 1 1 auto">
+  <h1 className="font-size: 1.125rem; line-height: 1.75rem; ">TokenID:{x.tokenId}</h1>
+  <a href={x.tokenURI}>TokenURI@{x.tokenURI}</a>
+  <h2>👛 Enter the wallet address</h2>
+  <input
+    type="text"
+    placeholder="Enter the adress to  transfer"
+    onChange={(event) => setaddress(event.target.value)}
+  />
+  <h2>🔢 Amount</h2>
+   <input
+    type="text"
+    placeholder="Enter the Amount of token to transfer"
+    onChange={(event) => setamount(event.target.value)}
+  />
+  </div>
+  <button className="listButton" onClick={onTransferPassed(x.tokenId)}>Transfer Nft</button>
+  </div>
+  )}
     </div>
     </div>
   );
