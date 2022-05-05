@@ -86,9 +86,12 @@ export const getCurrentWalletConnected = async () => {
   }
 };
 
-async function loadContract() {
-  return new web3.eth.Contract(contractABI, contractAddress);
+export const loadContract = () => {
+  window.contract =  new web3.eth.Contract(contractABI, contractAddress);
+  console.log(window.contract)
 }
+
+
 
 export const setUri = async (data, name, description) => {
   const pinataFileResponse = await pinFileToIPFS(data);
@@ -114,7 +117,7 @@ export const setUri = async (data, name, description) => {
     }
     const tokenURI = pinataResponse.pinataUrl;
     console.log(tokenURI);
-    window.contract = await new web3.eth.Contract(contractABI, contractAddress);
+    // window.contract = await new web3.eth.Contract(contractABI, contractAddress);
 
     const transactionUriParameters = {
       to: contractAddress, // Required except during contract publications.
@@ -170,13 +173,11 @@ export const mintNFT = async (count, Amount) => {
   }
 };
 
-export const transferNFT = async (address, id, Amount) => {
+export const transferNFT = async (address, id, amount) => {
   const transactionTransferParameters = {
-    to: contractAddress, // Required except during contract publications.
-    from: window.ethereum.selectedAddress, // must match user's active address.
-    data: window.contract.methods
-      .transfer(address, id, Amount)
-      .encodeABI(),
+    to: contractAddress,
+    from: window.ethereum.selectedAddress, 
+    data: window.contract.methods.transfer(address, id, amount).encodeABI(),
   };
 
   try {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { connectWallet, getCurrentWalletConnected, mintNFT, setUri,  transferNFT } from "./util/interact.js";
+import { connectWallet, getCurrentWalletConnected, mintNFT, setUri, transferNFT, loadContract} from "./util/interact.js";
 
 const Minter = () => {
   const [walletAddress, setWallet] = useState("");
@@ -13,13 +13,13 @@ const Minter = () => {
   const [nftData, setnftData] = useState([])
   const [address, setaddress] = useState();
   const [ amount, setamount] = useState();
-
- 
+  
   useEffect(async () => {
     const { address, status } = await getCurrentWalletConnected();
     setWallet(address);
     setStatus(status);
     addWalletListener();
+    loadContract();
   }, []);
 
   function addWalletListener() {
@@ -78,13 +78,13 @@ const Minter = () => {
   };
 
 
-  const onTransferPassed = async(id) =>{
+  const onTransferPassed = async (id) =>{
     const { success, status } = await transferNFT(address, id, amount);
     if (success) {
       setStatus(status);
     }
   }
-
+  
 
  
   return (
@@ -154,7 +154,7 @@ const Minter = () => {
     onChange={(event) => setamount(event.target.value)}
   />
   </div>
-  <button className="listButton" onClick={onTransferPassed(x.tokenId)}>Transfer Nft</button>
+  <button className="listButton" onClick={()=>onTransferPassed(x.tokenId)}>Transfer Nft</button>
   </div>
   )}
     </div>
